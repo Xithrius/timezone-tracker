@@ -1,6 +1,6 @@
 [package]
 name = "timezone-tracker"
-version = "1.0"
+version = "0.1.0"
 authors = ["Xithrius <xithrius@gmail.com>"]
 edition = "2018"
 description = "Converting/tracking timezones of others relative to your local time."
