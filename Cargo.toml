@@ -7,3 +7,8 @@ description = "Converting/tracking timezones of others relative to your local ti
 repository = "https://github.com/Xithrius/timezone-tracker"
 
 [dependencies]
+regex = "1.5"
+anyhow = "1.0"
+diesel = { version = "1.4.4", features = [ "sqlite" ]}
+dotenv = "0.15.0"
+
