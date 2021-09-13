@@ -9,6 +9,11 @@ repository = "https://github.com/Xithrius/timezone-tracker"
 [dependencies]
 regex = "1.5"
 anyhow = "1.0"
-diesel = { version = "1.4.4", features = [ "sqlite" ]}
-dotenv = "0.15.0"
-
+tui = "0.16.0"
+termion = "1.5"
+rand = "0.8.4"
+unicode-width = "0.1.5"
+chrono = "0.4"
+toml = "0.5.8"
+serde = "1.0.130"
+rusqlite = "0.25.3"
