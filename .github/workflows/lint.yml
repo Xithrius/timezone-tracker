@@ -1,24 +1,22 @@
-name: Linters
+name: Building & Testing
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
 
 jobs:
-  rustfmt:
-    name: Formatter
+  build:
+
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
-
-      - name: Install Rust
-        run: |
-          rustup update stable
-          rustup default stable
-          rustup component add rustfmt
-          rustup component add clippy
-
-      - name: Check Formatting
-        run: cargo fmt --all -- --check
-
-      - name: Check for idiomatic code
-        run: cargo clippy --all --all-features -- -D warnings
-
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose
