@@ -2,8 +2,8 @@ use std::collections::VecDeque;
 
 #[derive(Debug)]
 pub struct User {
-    pub(crate) name: String,
-    pub(crate) offset: i8,
+    pub name: String,
+    pub offset: i8,
 }
 
 pub struct App {

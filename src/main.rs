@@ -43,7 +43,7 @@ fn main() -> Result<()> {
         "create table if not exists users (
             id integer primary key,
             name text not null unique,
-            offset integer3
+            offset integer
         )",
         [],
     )
