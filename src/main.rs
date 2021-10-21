@@ -1,10 +1,18 @@
-use std::{io, time::Duration};
+use std::{
+    io::{self, Stdout},
+    time::Duration,
+};
 
 use anyhow::Result;
+use chrono::Local;
+use crossterm::{
+    event::{DisableMouseCapture, EnableMouseCapture, KeyCode},
+    execute,
+    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+};
 use rusqlite::Connection;
-use termion::{event::Key, input::MouseTerminal, raw::IntoRawMode, screen::AlternateScreen};
 use tui::{
-    backend::TermionBackend,
+    backend::CrosstermBackend,
     layout::{Constraint, Direction, Layout},
     widgets::{Block, Borders, Row, Table},
     Terminal,
@@ -17,24 +25,27 @@ use crate::utils::{
 
 mod utils;
 
-// const DEFAULT_DB_PATH_LINUX = &str = "~/.local/share/timezone-tracker/db.sqlite3";
 const DB_PATH: &str = "./db.sqlite3";
 
 fn main() -> Result<()> {
     let events = event::Events::with_config(event::Config {
-        exit_key: Key::Esc,
+        exit_key: KeyCode::Null,
         tick_rate: Duration::from_millis(30),
     });
 
+    enable_raw_mode().unwrap();
+    let mut stdout = io::stdout();
+
+    execute!(stdout, EnterAlternateScreen, EnableMouseCapture).unwrap();
+
+    let backend = CrosstermBackend::new(stdout);
+
+    let mut terminal = Terminal::new(backend).unwrap();
+
     let mut app = App::new();
 
-    let stdout = io::stdout().into_raw_mode()?;
-    let stdout = MouseTerminal::from(stdout);
-    let stdout = AlternateScreen::from(stdout);
-    let backend = TermionBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
-
-    let window_constraints = [Constraint::Length(3), Constraint::Min(1)];
+    // let window_constraints = [Constraint::Length(3), Constraint::Min(1)];
+    let window_constraints = [Constraint::Min(1)];
     let table_columns = vec!["User", "Offset", "Time"];
 
     let conn = Connection::open(&DB_PATH).unwrap();
@@ -64,6 +75,19 @@ fn main() -> Result<()> {
         app.timezone_data.push_front(user.unwrap());
     }
 
+    terminal.clear().unwrap();
+
+    let quitting = |mut terminal: Terminal<CrosstermBackend<Stdout>>| {
+        disable_raw_mode().unwrap();
+        execute!(
+            terminal.backend_mut(),
+            LeaveAlternateScreen,
+            DisableMouseCapture
+        )
+        .unwrap();
+        terminal.show_cursor().unwrap();
+    };
+
     loop {
         terminal.draw(|f| {
             let chunks = Layout::default()
@@ -72,26 +96,24 @@ fn main() -> Result<()> {
                 .constraints(window_constraints.as_ref())
                 .split(f.size());
 
-            let block = Block::default().title("Block").borders(Borders::ALL);
-
-            f.render_widget(block, chunks[0]);
-
             let table = Table::new(vec![Row::new(vec!["one", "two", "three"])])
                 .header(Row::new(table_columns.clone()))
-                .block(
-                    Block::default()
-                        .borders(Borders::ALL)
-                        .title("[ Timezones ]"),
-                )
+                .block(Block::default().borders(Borders::ALL).title(format!(
+                    "[ Timezones Table ] [ Local time: {} ]",
+                    Local::now().format("%c").to_string()
+                )))
                 .widths([Constraint::Length(15), Constraint::Length(15)].as_ref())
                 .column_spacing(1);
 
-            f.render_widget(table, chunks[1]);
+            f.render_widget(table, chunks[0]);
         })?;
 
         if let event::Event::Input(input) = events.next()? {
-            match input {
-                Key::Char('q') | Key::Esc => break,
+            match input.code {
+                KeyCode::Char('q') | KeyCode::Esc => {
+                    quitting(terminal);
+                    break;
+                }
                 _ => {}
             }
         }
