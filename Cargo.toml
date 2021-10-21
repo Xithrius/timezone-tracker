@@ -16,7 +16,7 @@ unicode-width = "0.1.9"
 chrono = "0.4"
 toml = "0.5.8"
 serde = { version = "1.0.130", features = ["derive"] }
-rusqlite = "0.25.3"
+rusqlite = "0.26.1"
 
 [[bin]]
 bench = false
