@@ -1,3 +1,2 @@
-pub mod app;
 pub mod dates;
-pub mod event;
+pub mod pathing;
