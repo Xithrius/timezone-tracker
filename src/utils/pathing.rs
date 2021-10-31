@@ -38,7 +38,10 @@ mod tests {
         match std::env::var("HOME") {
             Ok(env_home_path) => assert_eq!(
                 config_path("config.toml"),
-                format!("{}/.config/{}/{}", env_home_path, BINARY_NAME, "config.toml")
+                format!(
+                    "{}/.config/{}/{}",
+                    env_home_path, BINARY_NAME, "config.toml"
+                )
             ),
             Err(err) => std::panic::panic_any(err),
         }
