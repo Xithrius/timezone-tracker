@@ -10,7 +10,10 @@ use crate::{
         config::CompleteConfig,
         event::{self, Event, Key},
     },
-    utils::text::{align_text, get_cursor_position, parse_timezone_offset},
+    utils::{
+        styles,
+        text::{align_text, get_cursor_position, parse_timezone_offset},
+    },
 };
 use chrono::{Local, NaiveDateTime, Utc};
 use crossterm::{
@@ -22,13 +25,11 @@ use rusqlite::params;
 use rustyline::{At, Word};
 use tui::{
     backend::CrosstermBackend,
-    layout::{Alignment, Constraint, Direction, Layout},
+    layout::{Constraint, Direction, Layout},
     style::{Color, Style},
     widgets::{Block, Borders, Paragraph, Row, Table},
     Terminal,
 };
-use unicode_segmentation::UnicodeSegmentation;
-use unicode_width::UnicodeWidthStr;
 
 pub async fn draw_terminal_ui(config: &CompleteConfig) {
     let mut events = event::Events::with_config(event::Config {
@@ -124,11 +125,18 @@ pub async fn draw_terminal_ui(config: &CompleteConfig) {
                     .collect::<Vec<Row>>();
 
                 let table = Table::new(row_times)
-                    .header(Row::new(table_columns.clone()))
-                    .block(Block::default().borders(Borders::ALL).title(format!(
-                        "[ Timezones Table ] [ Local time: {} ]",
-                        Local::now().format(config.local_time_format.as_str()).to_string()
-                    )))
+                    .header(Row::new(table_columns.clone()).style(styles::COLUMN_TITLE))
+                    .block(
+                        Block::default()
+                            .style(styles::BORDER_NAME)
+                            .borders(Borders::ALL)
+                            .title(format!(
+                                "[ Timezones Table ] [ Local time: {} ]",
+                                Local::now()
+                                    .format(config.local_time_format.as_str())
+                                    .to_string()
+                            )),
+                    )
                     .widths(
                         [
                             Constraint::Length(15),
@@ -159,7 +167,12 @@ pub async fn draw_terminal_ui(config: &CompleteConfig) {
 
                     let paragraph = Paragraph::new(text.as_str())
                         .style(Style::default().fg(Color::Yellow))
-                        .block(Block::default().borders(Borders::ALL).title("[ Input ]"))
+                        .block(
+                            Block::default()
+                                .style(styles::BORDER_NAME)
+                                .borders(Borders::ALL)
+                                .title("[ Input ]"),
+                        )
                         .scroll((
                             0,
                             ((cursor_pos + 3) as u16).saturating_sub(input_rect.width),
