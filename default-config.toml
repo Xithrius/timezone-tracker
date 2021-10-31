@@ -1,1 +1,4 @@
-database_path = ""
+# Your timezone offset. Only use this if the time in the top left isn't correct.
+local_timezone_offset = ""
+# The format for the local time.
+local_time_format = "%c"

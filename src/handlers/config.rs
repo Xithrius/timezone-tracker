@@ -1,11 +1,14 @@
-use crate::utils::pathing::config_path;
 use anyhow::{bail, Error, Result};
-
 use serde::Deserialize;
+
+use crate::utils::pathing::config_path;
 
 #[derive(Deserialize)]
 pub struct CompleteConfig {
-    pub database_path: String,
+    /// Your timezone offset. Only use this if the time in the top left isn't correct.
+    pub local_timezone_offset: String,
+    /// The format for the local time.
+    pub local_time_format: String,
 }
 
 impl CompleteConfig {
