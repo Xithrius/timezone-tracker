@@ -132,8 +132,7 @@ pub async fn draw_terminal_ui(config: &CompleteConfig) {
                             .borders(Borders::ALL)
                             .title(format!(
                                 "[ Timezones Table ] [ Local time: {} ]",
-                                Local::now()
-                                    .format(config.local_time_format.as_str())
+                                Local::now().format(config.local_time_format.as_str())
                             )),
                     )
                     .widths(
