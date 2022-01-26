@@ -16,7 +16,7 @@ unicode-width = "0.1.9"
 unicode-segmentation = "1.8.0"
 chrono = "0.4"
 toml = "0.5.8"
-serde = { version = "1.0.132", features = ["derive"] }
+serde = { version = "1.0.136", features = ["derive"] }
 rusqlite = { version = "0.26.1", features = ["winsqlite3"] }
 tokio = { version = "1.15.0", features = ["full"] }
 rustyline = "9.0.0"
