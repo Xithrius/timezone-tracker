@@ -10,6 +10,7 @@ use rustyline::line_buffer::LineBuffer;
 
 use crate::utils::pathing::config_path;
 
+#[allow(dead_code)]
 pub enum State {
     Normal,
     Input,

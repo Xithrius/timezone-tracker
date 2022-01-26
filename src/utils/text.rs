@@ -48,6 +48,7 @@ pub fn align_text(text: &str, alignment: &str, maximum_length: u16) -> String {
     }
 }
 
+#[allow(dead_code)]
 pub enum VectorColumnMax<T> {
     One(T),
     All(Vec<T>),
@@ -65,6 +66,7 @@ impl<T> IntoIterator for VectorColumnMax<T> {
     }
 }
 
+#[allow(dead_code)]
 pub fn vector_column_max<T>(vec: &[Vec<T>], indexer: Option<usize>) -> IntoIter<u16>
 where
     T: AsRef<str>,

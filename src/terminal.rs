@@ -134,7 +134,6 @@ pub async fn draw_terminal_ui(config: &CompleteConfig) {
                                 "[ Timezones Table ] [ Local time: {} ]",
                                 Local::now()
                                     .format(config.local_time_format.as_str())
-                                    .to_string()
                             )),
                     )
                     .widths(
