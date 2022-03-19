@@ -1,27 +1,14 @@
 use std::{
-    collections::VecDeque,
     io::{self, Stdout},
     time::Duration,
 };
 
-use crate::{
-    handlers::{
-        app::{App, State, User},
-        config::CompleteConfig,
-        event::{self, Event, Key},
-    },
-    utils::{
-        styles,
-        text::{align_text, get_cursor_position, parse_timezone_offset},
-    },
-};
 use chrono::{Local, NaiveDateTime, Utc};
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use rusqlite::params;
 use rustyline::{At, Word};
 use tui::{
     backend::CrosstermBackend,
@@ -29,6 +16,18 @@ use tui::{
     style::{Color, Style},
     widgets::{Block, Borders, Paragraph, Row, Table},
     Terminal,
+};
+
+use crate::{
+    handlers::{
+        app::{App, State},
+        config::CompleteConfig,
+        event::{self, Event, Key},
+    },
+    utils::{
+        styles,
+        text::{align_text, get_cursor_position, parse_timezone_offset},
+    },
 };
 
 pub async fn draw_terminal_ui(config: &CompleteConfig) {
@@ -47,37 +46,9 @@ pub async fn draw_terminal_ui(config: &CompleteConfig) {
     let backend = CrosstermBackend::new(stdout);
 
     let mut terminal = Terminal::new(backend).unwrap();
-
     let mut app = App::new().expect("Unsuccessful in finding file/folder of database.");
 
     let table_columns = vec!["User", "Offset", "Time"];
-
-    app.conn
-        .execute(
-            "create table if not exists users (
-            id integer primary key,
-            name text not null unique,
-            timezone_offset integer
-        )",
-            [],
-        )
-        .expect("Failed to create database table");
-
-    let mut stmt = app
-        .conn
-        .prepare("SELECT name, timezone_offset FROM users")
-        .unwrap();
-
-    app.timezone_data = stmt
-        .query_map([], |row| {
-            Ok(User {
-                name: row.get(0).unwrap(),
-                offset: row.get(1).unwrap(),
-            })
-        })
-        .unwrap()
-        .filter_map(|f| f.ok())
-        .collect::<VecDeque<User>>();
 
     terminal.clear().unwrap();
 
@@ -108,7 +79,8 @@ pub async fn draw_terminal_ui(config: &CompleteConfig) {
                     .split(f.size());
 
                 let row_times = app
-                    .timezone_data
+                    .database
+                    .users
                     .iter()
                     .map(|u| {
                         Row::new(vec![
@@ -148,10 +120,7 @@ pub async fn draw_terminal_ui(config: &CompleteConfig) {
                 f.render_widget(table, vertical_chunks[0]);
 
                 if let State::Input = app.state {
-                    let text = app
-                        .input_map
-                        .get("timezone")
-                        .expect("Could not find timezone input window");
+                    let text = &app.input_buffer;
 
                     let cursor_pos = get_cursor_position(text);
 
@@ -197,75 +166,66 @@ pub async fn draw_terminal_ui(config: &CompleteConfig) {
                     _ => {}
                 },
                 State::Input => {
-                    let timezone = app.input_map.get_mut("timezone").unwrap();
-
                     match key {
                         Key::Ctrl('f') | Key::Right => {
-                            timezone.move_forward(1);
+                            app.input_buffer.move_forward(1);
                         }
                         Key::Ctrl('b') | Key::Left => {
-                            timezone.move_backward(1);
+                            app.input_buffer.move_backward(1);
                         }
                         Key::Ctrl('a') | Key::Home => {
-                            timezone.move_home();
+                            app.input_buffer.move_home();
                         }
                         Key::Ctrl('e') | Key::End => {
-                            timezone.move_end();
+                            app.input_buffer.move_end();
                         }
                         Key::Alt('f') => {
-                            timezone.move_to_next_word(At::AfterEnd, Word::Emacs, 1);
+                            app.input_buffer
+                                .move_to_next_word(At::AfterEnd, Word::Emacs, 1);
                         }
                         Key::Alt('b') => {
-                            timezone.move_to_prev_word(Word::Emacs, 1);
+                            app.input_buffer.move_to_prev_word(Word::Emacs, 1);
                         }
                         Key::Ctrl('t') => {
-                            timezone.transpose_chars();
+                            app.input_buffer.transpose_chars();
                         }
                         Key::Alt('t') => {
-                            timezone.transpose_words(1);
+                            app.input_buffer.transpose_words(1);
                         }
                         Key::Ctrl('u') => {
-                            timezone.discard_line();
+                            app.input_buffer.discard_line();
                         }
                         Key::Ctrl('k') => {
-                            timezone.kill_line();
+                            app.input_buffer.kill_line();
                         }
                         Key::Ctrl('w') => {
-                            timezone.delete_prev_word(Word::Emacs, 1);
+                            app.input_buffer.delete_prev_word(Word::Emacs, 1);
                         }
                         Key::Ctrl('d') => {
-                            timezone.delete(1);
+                            app.input_buffer.delete(1);
                         }
                         Key::Backspace | Key::Delete => {
-                            timezone.backspace(1);
+                            app.input_buffer.backspace(1);
                         }
                         Key::Enter => {
-                            let input_message = timezone.as_str();
+                            let input_message = &app.input_buffer.as_str();
 
                             if !input_message.is_empty() {
                                 // This is temporary. There will be multiple text boxes in the future to do this.
                                 let data = input_message.split(',').collect::<Vec<&str>>();
 
                                 if let Ok(timezone_offset) = parse_timezone_offset(data[1]) {
-                                    app.timezone_data.push_front(User::new(
-                                        data[0].to_string(),
-                                        timezone_offset,
-                                    ));
+                                    app.database.add(data[0].to_string(), timezone_offset);
 
-                                    app.conn.execute(
-                                        "INSERT INTO users (name, timezone_offset) VALUES (?1, ?2)",
-                                        params![data[0], timezone_offset],
-                                    ).expect("Failed to insert timezone data into database.");
-
-                                    timezone.update("", 0);
+                                    app.input_buffer.update("", 0);
                                 }
                             }
                         }
                         Key::Char(c) => {
-                            timezone.insert(c, 1);
+                            app.input_buffer.insert(c, 1);
                         }
                         Key::Esc => {
-                            timezone.update("", 0);
+                            app.input_buffer.update("", 0);
                             app.state = State::Normal;
                         }
                         _ => {}

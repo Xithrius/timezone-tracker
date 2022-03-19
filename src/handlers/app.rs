@@ -1,14 +1,10 @@
-use std::{
-    collections::{HashMap, VecDeque},
-    path::PathBuf,
-};
+use std::path::PathBuf;
 
 use anyhow::{bail, Error, Result};
-use maplit::hashmap;
 use rusqlite::Connection;
 use rustyline::line_buffer::LineBuffer;
 
-use crate::utils::pathing::config_path;
+use crate::{handlers::database::Database, utils::pathing::config_path};
 
 #[allow(dead_code)]
 pub enum State {
@@ -17,27 +13,13 @@ pub enum State {
     Help,
 }
 
-#[derive(Debug)]
-pub struct User {
-    pub name: String,
-    pub offset: i64,
-}
-
-impl User {
-    pub fn new(name: String, offset: i64) -> Self {
-        Self { name, offset }
-    }
-}
-
 pub struct App {
     /// State of the application
     pub state: State,
     /// Users and their timezone offset
-    pub timezone_data: VecDeque<User>,
-    /// Connection to the sqlite database
-    pub conn: Connection,
-    /// Boxes to insert text into
-    pub input_map: HashMap<&'static str, LineBuffer>,
+    pub database: Database,
+    /// The single box for inserting information into
+    pub input_buffer: LineBuffer,
 }
 
 impl App {
@@ -46,10 +28,9 @@ impl App {
 
         match Connection::open(&database_path) {
             Ok(database_connection) => Ok(Self {
-                timezone_data: VecDeque::new(),
-                conn: database_connection,
                 state: State::Normal,
-                input_map: hashmap! {"timezone" => LineBuffer::with_capacity(4096)},
+                database: Database::new(database_connection),
+                input_buffer: LineBuffer::with_capacity(4096),
             }),
             Err(_) => bail!(rusqlite::Error::InvalidPath(PathBuf::from(&database_path))),
         }
