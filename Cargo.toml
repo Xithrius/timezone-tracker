@@ -2,25 +2,28 @@
 name = "timezone-tracker"
 version = "0.1.0"
 authors = ["Xithrius <xithrius@gmail.com>"]
-edition = "2018"
+edition = "2021"
 description = "Converting/tracking timezones of others relative to your local time."
+documentation = "https://github.com/Xithrius/timezone-tracker"
+homepage = "https://github.com/Xithrius/timezone-tracker"
 repository = "https://github.com/Xithrius/timezone-tracker"
+license = "MIT OR Apache-2.0"
+keywords = ["tui", "timezones"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 crossterm = "0.23.1"
 tui = { version = "0.17.0", default-features = false, features = ["crossterm"] }
-regex = "1.5"
+regex = "1.5.5"
 anyhow = "1.0.56"
-rand = "0.8.4"
 unicode-width = "0.1.9"
-unicode-segmentation = "1.8.0"
-chrono = "0.4"
+unicode-segmentation = "1.9.0"
+chrono = "0.4.19"
 toml = "0.5.8"
 serde = { version = "1.0.136", features = ["derive"] }
-rusqlite = { version = "0.26.1", features = ["winsqlite3"] }
+rusqlite = { version = "0.27.0", features = ["winsqlite3"] }
 tokio = { version = "1.15.0", features = ["full"] }
 rustyline = "9.0.0"
-maplit = "1.0.2"
 
 [[bin]]
 bench = false
