@@ -13,7 +13,7 @@ regex = "1.5"
 anyhow = "1.0.56"
 rand = "0.8.4"
 unicode-width = "0.1.9"
-unicode-segmentation = "1.8.0"
+unicode-segmentation = "1.9.0"
 chrono = "0.4"
 toml = "0.5.8"
 serde = { version = "1.0.136", features = ["derive"] }
