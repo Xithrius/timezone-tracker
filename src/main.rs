@@ -1,17 +1,19 @@
-use handlers::config::CompleteConfig;
+use anyhow::{bail, Result};
 
 mod handlers;
 mod terminal;
 mod utils;
 
-use anyhow::Result;
+use handlers::config::CompleteConfig;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    match CompleteConfig::new() {
-        Ok(config) => terminal::draw_terminal_ui(&config).await,
-        Err(err) => println!("{}", err),
+    let config = match CompleteConfig::new() {
+        Ok(c) => c,
+        Err(err) => bail!("{}", err),
     };
+
+    terminal::draw_terminal_ui(&config).await;
 
     Ok(())
 }

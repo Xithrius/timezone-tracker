@@ -1,11 +1,10 @@
 use std::vec::IntoIter;
 
+use anyhow::{anyhow, Context, Result};
 use regex::Regex;
 use rustyline::line_buffer::LineBuffer;
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
-
-use anyhow::{anyhow, Context, Result};
 
 pub fn parse_timezone_offset(timezone_offset: &str) -> Result<i64> {
     let re = Regex::new("^UTC([-+][0-9]{1,2})$").unwrap();
