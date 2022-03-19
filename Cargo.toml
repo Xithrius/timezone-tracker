@@ -7,7 +7,7 @@ description = "Converting/tracking timezones of others relative to your local ti
 repository = "https://github.com/Xithrius/timezone-tracker"
 
 [dependencies]
-crossterm = "0.22.1"
+crossterm = "0.23.1"
 tui = { version = "0.17.0", default-features = false, features = ["crossterm"] }
 regex = "1.5"
 anyhow = "1.0.53"
@@ -17,7 +17,7 @@ unicode-segmentation = "1.8.0"
 chrono = "0.4"
 toml = "0.5.8"
 serde = { version = "1.0.136", features = ["derive"] }
-rusqlite = { version = "0.26.1", features = ["winsqlite3"] }
+rusqlite = { version = "0.27.0", features = ["winsqlite3"] }
 tokio = { version = "1.15.0", features = ["full"] }
 rustyline = "9.0.0"
 maplit = "1.0.2"
