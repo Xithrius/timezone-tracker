@@ -3,12 +3,30 @@ use serde::Deserialize;
 
 use crate::utils::pathing::config_path;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct CompleteConfig {
+    pub terminal: TerminalConfig,
+    pub frontend: FrontendConfig,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct TerminalConfig {
     /// Your timezone offset. Only use this if the time in the top left isn't correct.
     pub local_timezone_offset: String,
-    /// The format for the local time.
+    /// The delay in milliseconds between terminal updates.
+    pub tick_delay: usize,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct FrontendConfig {
+    /// The format of the date and time outputs, examples at https://strftime.org/
     pub local_time_format: String,
+    /// The longest a username can be.
+    pub maximum_username_length: usize,
+    /// Which side the username should be aligned to.
+    pub username_alignment: String,
+    /// Show padding around chat frame
+    pub padding: bool,
 }
 
 impl CompleteConfig {

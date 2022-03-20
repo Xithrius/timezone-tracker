@@ -1,4 +1,15 @@
+[terminal]
 # Your timezone offset. Only use this if the time in the top left isn't correct.
 local_timezone_offset = ""
-# The format for the local time.
+# The delay in milliseconds between terminal updates.
+tick_delay = 30
+
+[frontend]
+# The format of the date and time outputs, examples at https://strftime.org/
 local_time_format = "%c"
+# The longest a username can be.
+maximum_username_length = 26
+# Which side the username should be aligned to.
+username_alignment = "right"
+# Show padding around chat frame
+padding = true

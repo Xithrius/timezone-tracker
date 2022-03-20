@@ -90,7 +90,7 @@ pub async fn draw_terminal_ui(config: &CompleteConfig) {
                                 Utc::now().timestamp() + u.offset * 3600,
                                 0,
                             )
-                            .format(config.local_time_format.as_str())
+                            .format(config.frontend.local_time_format.as_str())
                             .to_string(),
                         ])
                     })
@@ -104,7 +104,7 @@ pub async fn draw_terminal_ui(config: &CompleteConfig) {
                             .borders(Borders::ALL)
                             .title(format!(
                                 "[ Timezones Table ] [ Local time: {} ]",
-                                Local::now().format(config.local_time_format.as_str())
+                                Local::now().format(config.frontend.local_time_format.as_str())
                             )),
                     )
                     .widths(
