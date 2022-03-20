@@ -47,17 +47,30 @@ impl Database {
     }
 
     pub fn add(&mut self, name: String, offset: i64) {
-        self.conn
-            .execute(
-                "INSERT INTO users (name, timezone_offset) VALUES (?1, ?2)",
-                params![name, offset.to_string()],
-            )
-            .unwrap();
+        if self.contains(&name) {
+            self.conn
+                .execute(
+                    "UPDATE users SET timezone_offset = ?2 WHERE name = ?1",
+                    params![name, offset.to_string()],
+                )
+                .unwrap();
 
-        self.users.push_back(User::new(name, offset));
+            let i = self.users.iter().position(|x| x.name == name).unwrap();
+
+            self.users[i].offset = offset;
+        } else {
+            self.conn
+                .execute(
+                    "INSERT INTO users (name, timezone_offset) VALUES (?1, ?2)",
+                    params![name, offset.to_string()],
+                )
+                .unwrap();
+
+            self.users.push_back(User::new(name, offset));
+        }
     }
 
-    pub fn contains(&self, name: String) -> bool {
+    pub fn contains(&self, name: &str) -> bool {
         for user in &self.users {
             if user.name == name {
                 return true;
