@@ -12,7 +12,7 @@ keywords = ["tui", "timezones"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-crossterm = "0.23.1"
+crossterm = "0.23.2"
 tui = { version = "0.17.0", default-features = false, features = ["crossterm"] }
 regex = "1.5.5"
 anyhow = "1.0.56"
