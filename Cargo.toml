@@ -19,7 +19,7 @@ anyhow = "1.0.56"
 unicode-width = "0.1.9"
 unicode-segmentation = "1.9.0"
 chrono = "0.4.19"
-toml = "0.5.8"
+toml = "0.5.9"
 serde = { version = "1.0.136", features = ["derive"] }
 rusqlite = { version = "0.27.0", features = ["winsqlite3"] }
 tokio = { version = "1.15.0", features = ["full"] }
