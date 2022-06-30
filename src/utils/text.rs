@@ -11,11 +11,9 @@ pub fn parse_timezone_offset(timezone_offset: &str) -> Result<i64> {
 
     let offset_string = re
         .captures(timezone_offset)
-        .ok_or_else(|| anyhow!("Timezone string was formatted incorrectly."))
-        .unwrap()
+        .ok_or_else(|| anyhow!("Timezone string was formatted incorrectly."))?
         .get(1)
-        .ok_or_else(|| anyhow!("Could not retrieve the integer offset from the timezone string."))
-        .unwrap()
+        .ok_or_else(|| anyhow!("Could not retrieve the integer offset from the timezone string."))?
         .as_str();
 
     offset_string.parse::<i64>().with_context(|| {
