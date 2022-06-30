@@ -1,6 +1,6 @@
 use std::vec::IntoIter;
 
-use anyhow::{anyhow, Context, Result};
+use color_eyre::eyre::{anyhow, Context, Result};
 use regex::Regex;
 use rustyline::line_buffer::LineBuffer;
 use unicode_segmentation::UnicodeSegmentation;
@@ -11,9 +11,11 @@ pub fn parse_timezone_offset(timezone_offset: &str) -> Result<i64> {
 
     let offset_string = re
         .captures(timezone_offset)
-        .ok_or_else(|| anyhow!("Timezone string was formatted incorrectly."))?
+        .ok_or_else(|| anyhow!("Timezone string was formatted incorrectly."))
+        .unwrap()
         .get(1)
-        .ok_or_else(|| anyhow!("Could not retrieve the integer offset from the timezone string."))?
+        .ok_or_else(|| anyhow!("Could not retrieve the integer offset from the timezone string."))
+        .unwrap()
         .as_str();
 
     offset_string.parse::<i64>().with_context(|| {

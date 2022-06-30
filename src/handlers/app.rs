@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use anyhow::{bail, Error, Result};
+use color_eyre::eyre::{bail, Error, Result};
 use rusqlite::Connection;
 use rustyline::line_buffer::LineBuffer;
 
