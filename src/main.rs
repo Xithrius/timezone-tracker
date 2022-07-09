@@ -4,7 +4,7 @@ mod ui;
 mod utils;
 
 use color_eyre::eyre::{Result, WrapErr};
-use handlers::{config::CompleteConfig, app::App};
+use handlers::{app::App, config::CompleteConfig};
 
 #[tokio::main]
 async fn main() -> Result<()> {
