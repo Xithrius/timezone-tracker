@@ -1,13 +1,16 @@
-use std::vec::IntoIter;
-
 use color_eyre::eyre::{anyhow, Context, Result};
 use regex::Regex;
 use rustyline::line_buffer::LineBuffer;
+use tui::{
+    style::Style,
+    text::{Span, Spans},
+};
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
 
+#[allow(dead_code)]
 pub fn parse_timezone_offset(timezone_offset: &str) -> Result<i64> {
-    let re = Regex::new("^UTC([-+][0-9]{1,2})$").unwrap();
+    let re = Regex::new("^(UTC)?([-+][0-9]{1,2})$").unwrap();
 
     let offset_string = re
         .captures(timezone_offset)
@@ -24,74 +27,46 @@ pub fn parse_timezone_offset(timezone_offset: &str) -> Result<i64> {
     })
 }
 
-pub fn align_text(text: &str, alignment: &str, maximum_length: u16) -> String {
-    if maximum_length < 1 {
-        panic!("Parameter of 'maximum_length' cannot be below 1.");
-    }
+// pub fn parse_user_timezone(text: &str) -> (String, Result<i64>) {
+//     let s = text.split(',').collect::<Vec<&str>>();
 
-    match alignment {
-        "left" => text.to_string(),
-        "right" => format!(
-            "{}{}",
-            " ".repeat((maximum_length - text.len() as u16) as usize),
-            text
-        ),
-        "center" => {
-            let side_spaces = " ".repeat(
-                ((maximum_length / 2) - (((text.len() / 2) as f32).floor() as u16)) as usize,
-            );
+//     (s[0])
+// }
 
-            format!("{}{}{}", side_spaces, text, side_spaces)
-        }
-        _ => text.to_string(),
-    }
-}
+pub fn align_columns(
+    mut v2: Vec<Vec<String>>,
+    row_len: usize,
+    alignment: String,
+) -> Vec<Vec<String>> {
+    for i in 0..row_len {
+        let column_max = if let Some(value) = v2.iter().map(|v| v[i].len()).max() {
+            value as u16
+        } else {
+            0
+        };
 
-#[allow(dead_code)]
-pub enum VectorColumnMax<T> {
-    One(T),
-    All(Vec<T>),
-}
+        for j in 0..v2[i].len() {
+            let text = &v2[i][j];
 
-impl<T> IntoIterator for VectorColumnMax<T> {
-    type Item = T;
-    type IntoIter = std::vec::IntoIter<Self::Item>;
+            v2[i][j] = match alignment.as_str() {
+                "right" => format!(
+                    "{}{}",
+                    " ".repeat((column_max - text.len() as u16) as usize),
+                    text
+                ),
+                "center" => {
+                    let side_spaces = " ".repeat(
+                        ((column_max / 2) - (((text.len() / 2) as f32).floor() as u16)) as usize,
+                    );
 
-    fn into_iter(self) -> Self::IntoIter {
-        match self {
-            VectorColumnMax::All(item) => item.into_iter(),
-            VectorColumnMax::One(item) => vec![item].into_iter(),
-        }
-    }
-}
-
-#[allow(dead_code)]
-pub fn vector_column_max<T>(vec: &[Vec<T>], indexer: Option<usize>) -> IntoIter<u16>
-where
-    T: AsRef<str>,
-{
-    if vec.is_empty() {
-        panic!("Vector length should be greater than or equal to 1.")
-    }
-
-    let column_max = |vec: &[Vec<T>], index: usize| -> u16 {
-        vec.iter().map(|v| v[index].as_ref().len()).max().unwrap() as u16
-    };
-
-    match indexer {
-        Some(index) => VectorColumnMax::One(column_max(vec, index)).into_iter(),
-        None => {
-            let column_amount = vec[0].len();
-
-            let mut column_max_lengths: Vec<u16> = vec![];
-
-            for i in 0..column_amount {
-                column_max_lengths.push(column_max(vec, i));
-            }
-
-            VectorColumnMax::All(column_max_lengths).into_iter()
+                    format!("{}{}{}", side_spaces, text, side_spaces)
+                }
+                _ => text.to_string(),
+            };
         }
     }
+
+    todo!()
 }
 
 pub fn get_cursor_position(line_buffer: &LineBuffer) -> usize {
@@ -101,6 +76,20 @@ pub fn get_cursor_position(line_buffer: &LineBuffer) -> usize {
         .take_while(|(offset, _)| *offset != line_buffer.pos())
         .map(|(_, cluster)| cluster.width())
         .sum()
+}
+
+pub fn title_spans<'a>(contents: Vec<Vec<&str>>, style: Style) -> Spans<'a> {
+    let mut complete = Vec::new();
+
+    for (i, item) in contents.iter().enumerate() {
+        complete.extend(vec![
+            Span::raw(format!("{}[ ", if i != 0 { " " } else { "" })),
+            Span::styled(item[0].to_string(), style),
+            Span::raw(format!(": {} ]", item[1])),
+        ]);
+    }
+
+    Spans::from(complete)
 }
 
 #[cfg(test)]
@@ -131,75 +120,6 @@ mod tests {
     #[test]
     fn test_timezone_parse_into_positive_integer() {
         assert_eq!(parse_timezone_offset("UTC+8").unwrap(), 8);
-    }
-
-    #[test]
-    #[should_panic(expected = "Parameter of 'maximum_length' cannot be below 1.")]
-    fn test_text_align_maximum_length() {
-        align_text("", "left", 0);
-    }
-
-    #[test]
-    fn test_text_align_left() {
-        assert_eq!(align_text("a", "left", 10), "a".to_string());
-        assert_eq!(align_text("a", "left", 1), "a".to_string());
-    }
-
-    #[test]
-    fn test_text_align_right() {
-        assert_eq!(
-            align_text("a", "right", 10),
-            format!("{}{}", " ".repeat(9), "a")
-        );
-        assert_eq!(align_text("a", "right", 1), "a".to_string());
-    }
-
-    #[test]
-    fn test_text_align_center() {
-        assert_eq!(
-            align_text("a", "center", 10),
-            format!("{}{}{}", " ".repeat(5), "a", " ".repeat(5))
-        );
-        assert_eq!(align_text("a", "center", 1), "a".to_string());
-    }
-
-    #[test]
-    #[should_panic(expected = "Vector length should be greater than or equal to 1.")]
-    fn test_vector_column_max_empty_vector() {
-        let vec: Vec<Vec<String>> = vec![];
-
-        vector_column_max(&vec, None);
-    }
-
-    #[test]
-    fn test_vector_column_max_reference_strings() {
-        let vec = vec![vec!["", "s"], vec!["longer string", "lll"]];
-
-        let mut output_vec_all = vector_column_max(&vec, None);
-
-        assert_eq!(output_vec_all.next(), Some(13));
-        assert_eq!(output_vec_all.next(), Some(3));
-
-        let mut output_vec_one = vector_column_max(&vec, Some(0));
-
-        assert_eq!(output_vec_one.next(), Some(13));
-    }
-
-    #[test]
-    fn test_vector_column_max_strings() {
-        let vec = vec![
-            vec!["".to_string(), "another".to_string()],
-            vec!["".to_string(), "the last string".to_string()],
-        ];
-
-        let mut output_vec_all = vector_column_max(&vec, None);
-
-        assert_eq!(output_vec_all.next(), Some(0));
-        assert_eq!(output_vec_all.next(), Some(15));
-
-        let mut output_vec_one = vector_column_max(&vec, Some(0));
-
-        assert_eq!(output_vec_one.next(), Some(0));
     }
 
     #[test]

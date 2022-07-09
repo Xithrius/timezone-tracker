@@ -1,44 +1,81 @@
+use std::{
+    fs::{create_dir_all, read_to_string, File},
+    io::Write,
+    path::Path,
+};
+
 use color_eyre::eyre::{bail, Error, Result};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::utils::pathing::config_path;
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[serde(default)]
 pub struct CompleteConfig {
+    /// Internal functionality.
     pub terminal: TerminalConfig,
+    /// How everything looks to the user.
     pub frontend: FrontendConfig,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TerminalConfig {
-    /// Your timezone offset. Only use this if the time in the top left isn't correct.
-    pub local_timezone_offset: String,
+    /// Local timezone offset relative to UTC.
+    pub timezone_offset: i64,
     /// The delay in milliseconds between terminal updates.
     pub tick_delay: usize,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FrontendConfig {
-    /// The format of the date and time outputs, examples at https://strftime.org/
-    pub local_time_format: String,
-    /// The longest a username can be.
-    pub maximum_username_length: usize,
-    /// Which side the username should be aligned to.
-    pub username_alignment: String,
-    /// Show padding around chat frame
-    pub padding: bool,
+    /// The format of the date and time outputs. Formats can be found at https://strftime.org/.
+    pub time_format: String,
+    /// Which side the information should be aligned to.
+    pub alignment: String,
+    /// The amount of padding that the main window should have.
+    pub padding: u16,
+}
+
+impl Default for TerminalConfig {
+    fn default() -> Self {
+        Self {
+            timezone_offset: 0,
+            tick_delay: 30,
+        }
+    }
+}
+
+impl Default for FrontendConfig {
+    fn default() -> Self {
+        Self {
+            time_format: "%c".to_string(),
+            alignment: "right".to_string(),
+            padding: 0,
+        }
+    }
 }
 
 impl CompleteConfig {
     pub fn new() -> Result<Self, Error> {
-        if let Ok(config_contents) = std::fs::read_to_string(config_path("config.toml")) {
+        let path_str = config_path("config.toml");
+
+        let p = Path::new(&path_str);
+
+        if !p.exists() {
+            create_dir_all(p.parent().unwrap()).unwrap();
+
+            let default_toml_string = toml::to_string(&CompleteConfig::default()).unwrap();
+            let mut file = File::create(path_str.clone()).unwrap();
+            file.write_all(default_toml_string.as_bytes()).unwrap();
+
+            bail!("Configuration was generated at {path_str}, please fill it out with necessary information.")
+        } else if let Ok(config_contents) = read_to_string(&p) {
             let config: CompleteConfig = toml::from_str(config_contents.as_str()).unwrap();
 
             Ok(config)
         } else {
             bail!(
-                "Configuration not found. Create a config file at '{}', and see '{}' for an example configuration.",
-                config_path("config.toml"),
+                "Configuration could not be read correctly. See the following link for the example config: {}",
                 format!("{}/blob/main/default-config.toml", env!("CARGO_PKG_REPOSITORY"))
             )
         }
