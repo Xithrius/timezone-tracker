@@ -23,7 +23,7 @@ unicode-segmentation = "1.9.0"
 chrono = "0.4.19"
 toml = "0.5.8"
 rustyline = "9.1.2"
-color-eyre = "0.6.1"
+color-eyre = "0.6.2"
 
 [target.'cfg(windows)'.dependencies]
 rusqlite = { version = "0.27.0", features = [ "winsqlite3" ] }
