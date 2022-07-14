@@ -15,7 +15,7 @@ categories = ["command-line-utilities"]
 crossterm = "0.23.2"
 tui = { version = "0.18.0", default-features = false, features = [ "crossterm" ] }
 serde = { version = "1.0.137", features = [ "derive" ] }
-tokio = { version = "1.19.2", features = [ "full" ] }
+tokio = { version = "1.20.0", features = [ "full" ] }
 rusqlite = "0.27.0"
 regex = "1.5.6"
 unicode-width = "0.1.9"
