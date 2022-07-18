@@ -22,7 +22,7 @@ unicode-width = "0.1.9"
 unicode-segmentation = "1.9.0"
 chrono = "0.4.19"
 toml = "0.5.8"
-rustyline = "9.1.2"
+rustyline = "10.0.0"
 color-eyre = "0.6.1"
 
 [target.'cfg(windows)'.dependencies]
