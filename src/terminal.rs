@@ -18,6 +18,7 @@ use crate::{
         event::{self, Event, Key},
     },
     ui::draw_ui,
+    utils::timezones::parse_user_timezone,
 };
 
 fn reset_terminal() {
@@ -125,17 +126,15 @@ pub async fn ui_driver(config: CompleteConfig, mut app: App) {
                         app.input_buffer.backspace(1);
                     }
                     Key::Enter => {
-                        let _input_message = &app.input_buffer.as_str();
+                        let input_message = &app.input_buffer.as_str();
 
-                        // if !input_message.is_empty() {
-                        //     let (user, offset) = parse_user_timezone(input_message);
+                        if !input_message.is_empty() {
+                            if let Ok((user, offset)) = parse_user_timezone(input_message) {
+                                app.storage.add(&user, offset);
 
-                        //     if let Ok(timezone_offset) = parse_timezone_offset(data[1]) {
-                        //         app.storage.add(data[0].to_string(), timezone_offset);
-
-                        //         app.input_buffer.update("", 0);
-                        //     }
-                        // }
+                                app.input_buffer.update("", 0);
+                            }
+                        }
                     }
                     Key::Char(c) => {
                         app.input_buffer.insert(c, 1);

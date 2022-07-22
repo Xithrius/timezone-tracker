@@ -13,7 +13,6 @@ pub struct Storage {
     file_path: String,
 }
 
-#[allow(dead_code)]
 impl Storage {
     pub fn new(file_path: String) -> Self {
         if !Path::new(&file_path).exists() {
@@ -58,6 +57,7 @@ impl Storage {
 
     /// Removes a key-value pair from the storage map.
     /// If the entry doesn't exist, nothing is changed.
+    #[allow(dead_code)]
     pub fn remove(&mut self, key: &str) {
         self.items.remove(key);
     }

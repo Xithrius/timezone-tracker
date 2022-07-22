@@ -1,5 +1,3 @@
-use color_eyre::eyre::{anyhow, Context, Result};
-use regex::Regex;
 use rustyline::line_buffer::LineBuffer;
 use tui::{
     style::Style,
@@ -8,65 +6,48 @@ use tui::{
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
 
-#[allow(dead_code)]
-pub fn parse_timezone_offset(timezone_offset: &str) -> Result<i64> {
-    let re = Regex::new("^(UTC)?([-+][0-9]{1,2})$").unwrap();
+use crate::handlers::config::Alignment;
 
-    let offset_string = re
-        .captures(timezone_offset)
-        .ok_or_else(|| anyhow!("Timezone string was formatted incorrectly."))?
-        .get(1)
-        .ok_or_else(|| anyhow!("Could not retrieve the integer offset from the timezone string."))?
-        .as_str();
+pub fn align_text(text: &str, maximum_length: u16, alignment: Alignment) -> String {
+    if maximum_length < 1 {
+        panic!("Parameter of 'maximum_length' cannot be below 1.");
+    }
 
-    offset_string.parse::<i64>().with_context(|| {
-        format!(
-            "Unable to convert {} to a valid integer offset.",
-            timezone_offset
-        )
-    })
+    let dw = text.len();
+
+    match alignment {
+        Alignment::Right => {
+            if dw > maximum_length as usize {
+                text.to_string()
+            } else {
+                format!("{}{}", " ".repeat(maximum_length as usize - dw), text)
+            }
+        }
+        Alignment::Center => {
+            let side_spaces =
+                " ".repeat(((maximum_length / 2) - (((dw / 2) as f32).floor() as u16)) as usize);
+            format!("{}{}{}", side_spaces, text, side_spaces)
+        }
+        _ => text.to_string(),
+    }
 }
 
-// pub fn parse_user_timezone(text: &str) -> (String, Result<i64>) {
-//     let s = text.split(',').collect::<Vec<&str>>();
-
-//     (s[0])
-// }
-
+/// Aligns all text in a column to a side depending on the longest string.
+/// Sides can either be to the left, right, or center.
 pub fn align_columns(
     mut v2: Vec<Vec<String>>,
-    row_len: usize,
-    alignment: String,
+    column_amount: usize,
+    alignment: Alignment,
 ) -> Vec<Vec<String>> {
-    for i in 0..row_len {
-        let column_max = if let Some(value) = v2.iter().map(|v| v[i].len()).max() {
-            value as u16
-        } else {
-            0
-        };
+    for i in 0..column_amount {
+        let column_max = v2.iter().map(|v| v[i].len()).max().unwrap() as u16;
 
-        for j in 0..v2[i].len() {
-            let text = &v2[i][j];
-
-            v2[i][j] = match alignment.as_str() {
-                "right" => format!(
-                    "{}{}",
-                    " ".repeat((column_max - text.len() as u16) as usize),
-                    text
-                ),
-                "center" => {
-                    let side_spaces = " ".repeat(
-                        ((column_max / 2) - (((text.len() / 2) as f32).floor() as u16)) as usize,
-                    );
-
-                    format!("{}{}{}", side_spaces, text, side_spaces)
-                }
-                _ => text.to_string(),
-            };
+        for j in 0..v2.len() {
+            v2[i][j] = align_text(&v2[i][j], column_max, alignment.clone());
         }
     }
 
-    todo!()
+    v2
 }
 
 pub fn get_cursor_position(line_buffer: &LineBuffer) -> usize {
@@ -97,29 +78,30 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_invalid_timezone_parse() {
-        if let Err(err) = parse_timezone_offset("asdfUTC+8") {
-            assert_eq!(
-                err.to_string(),
-                "Timezone string was formatted incorrectly."
-            );
-        }
+    #[should_panic(expected = "Parameter of 'maximum_length' cannot be below 1.")]
+    fn test_align_text_with_nothing() {
+        assert_eq!(align_text("", 0, Alignment::Left), "");
     }
 
     #[test]
-    fn test_timezone_parse_into_zero() {
-        assert_eq!(parse_timezone_offset("UTC-0").unwrap(), 0);
-        assert_eq!(parse_timezone_offset("UTC+0").unwrap(), 0);
+    fn test_align_text_left() {
+        assert_eq!(align_text("text", 6, Alignment::Left), "text");
+        assert_eq!(align_text("text", u16::MAX, Alignment::Left), "text");
     }
 
     #[test]
-    fn test_timezone_parse_into_negative_integer() {
-        assert_eq!(parse_timezone_offset("UTC-8").unwrap(), -8);
+    fn test_align_text_center() {
+        assert_eq!(align_text("text", 6, Alignment::Center), " text ");
     }
 
     #[test]
-    fn test_timezone_parse_into_positive_integer() {
-        assert_eq!(parse_timezone_offset("UTC+8").unwrap(), 8);
+    fn test_align_text_right() {
+        assert_eq!(align_text("text", 6, Alignment::Right), "  text");
+    }
+
+    #[test]
+    fn test_align_text_right_smaller_max() {
+        assert_eq!(align_text("text", 1, Alignment::Left), "text");
     }
 
     #[test]

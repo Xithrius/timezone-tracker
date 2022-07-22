@@ -12,3 +12,22 @@ pub const COLUMN_TITLE: Style = Style {
     add_modifier: Modifier::BOLD,
     sub_modifier: Modifier::empty(),
 };
+
+pub const VALID: Style = Style {
+    fg: Some(Color::Green),
+    bg: None,
+    add_modifier: Modifier::empty(),
+    sub_modifier: Modifier::empty(),
+};
+pub const EXISTS: Style = Style {
+    fg: Some(Color::Yellow),
+    bg: None,
+    add_modifier: Modifier::empty(),
+    sub_modifier: Modifier::empty(),
+};
+pub const INVALID: Style = Style {
+    fg: Some(Color::Red),
+    bg: None,
+    add_modifier: Modifier::empty(),
+    sub_modifier: Modifier::empty(),
+};

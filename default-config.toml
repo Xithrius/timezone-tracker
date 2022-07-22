@@ -1,7 +1,4 @@
 [terminal]
-# Your timezone offset relative to UTC.
-timezone_offset = 0
-
 # The delay in milliseconds between terminal updates.
 tick_delay = 30
 

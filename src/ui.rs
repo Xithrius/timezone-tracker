@@ -15,6 +15,7 @@ use crate::{
     utils::{
         styles,
         text::{align_columns, get_cursor_position, title_spans},
+        timezones::parse_user_timezone,
     },
 };
 
@@ -63,15 +64,12 @@ pub fn draw_ui<T: Backend>(f: &mut Frame<T>, app: &mut App, config: &CompleteCon
             .style(styles::BORDER_NAME)
             .borders(Borders::ALL)
             .title(title_spans(
-                vec![
-                    vec!["Local offset", &config.terminal.timezone_offset.to_string()],
-                    vec![
-                        "Local time",
-                        &Local::now()
-                            .format(config.frontend.time_format.as_str())
-                            .to_string(),
-                    ],
-                ],
+                vec![vec![
+                    "Local time",
+                    &Local::now()
+                        .format(config.frontend.time_format.as_str())
+                        .to_string(),
+                ]],
                 Style::default().fg(Color::Red).add_modifier(Modifier::BOLD),
             )),
     )
@@ -90,6 +88,18 @@ pub fn draw_ui<T: Backend>(f: &mut Frame<T>, app: &mut App, config: &CompleteCon
     if let State::Input = app.state {
         let text = &app.input_buffer;
 
+        if !text.is_empty() {
+            if let Ok((user, _)) = parse_user_timezone(text) {
+                if app.storage.contains(&user) {
+                    app.buffer_validity = styles::EXISTS;
+                } else {
+                    app.buffer_validity = styles::VALID;
+                }
+            } else {
+                app.buffer_validity = styles::INVALID;
+            }
+        }
+
         let cursor_pos = get_cursor_position(text);
 
         let input_rect = vertical_chunks[vertical_chunk_constraints.len() - 1];
@@ -104,7 +114,7 @@ pub fn draw_ui<T: Backend>(f: &mut Frame<T>, app: &mut App, config: &CompleteCon
             .style(Style::default().fg(Color::Yellow))
             .block(
                 Block::default()
-                    .style(styles::BORDER_NAME)
+                    .style(app.buffer_validity)
                     .borders(Borders::ALL)
                     .title("[ Input ]"),
             )

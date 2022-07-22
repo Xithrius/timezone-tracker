@@ -20,10 +20,16 @@ pub struct CompleteConfig {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TerminalConfig {
-    /// Local timezone offset relative to UTC.
-    pub timezone_offset: i64,
     /// The delay in milliseconds between terminal updates.
     pub tick_delay: usize,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "lowercase")]
+pub enum Alignment {
+    Left,
+    Right,
+    Center,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -31,17 +37,20 @@ pub struct FrontendConfig {
     /// The format of the date and time outputs. Formats can be found at https://strftime.org/.
     pub time_format: String,
     /// Which side the information should be aligned to.
-    pub alignment: String,
+    pub alignment: Alignment,
     /// The amount of padding that the main window should have.
     pub padding: u16,
 }
 
 impl Default for TerminalConfig {
     fn default() -> Self {
-        Self {
-            timezone_offset: 0,
-            tick_delay: 30,
-        }
+        Self { tick_delay: 30 }
+    }
+}
+
+impl Default for Alignment {
+    fn default() -> Self {
+        Alignment::Right
     }
 }
 
@@ -49,7 +58,7 @@ impl Default for FrontendConfig {
     fn default() -> Self {
         Self {
             time_format: "%c".to_string(),
-            alignment: "right".to_string(),
+            alignment: Alignment::Right,
             padding: 0,
         }
     }
