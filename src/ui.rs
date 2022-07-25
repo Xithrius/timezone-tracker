@@ -49,6 +49,12 @@ pub fn draw_ui<T: Backend>(f: &mut Frame<T>, app: &mut App, config: &CompleteCon
 
     let titles = vec!["User", "Offset", "Time"];
 
+    let table_constraints = vec![
+        Constraint::Length(config.frontend.maximum_username_length),
+        Constraint::Length(6),
+        Constraint::Percentage(100),
+    ];
+
     let table = Table::new(
         if time_rows.len() > 1 {
             align_columns(time_rows, titles.len(), config.frontend.alignment.clone())
@@ -73,14 +79,7 @@ pub fn draw_ui<T: Backend>(f: &mut Frame<T>, app: &mut App, config: &CompleteCon
                 Style::default().fg(Color::Red).add_modifier(Modifier::BOLD),
             )),
     )
-    .widths(
-        [
-            Constraint::Length(15),
-            Constraint::Length(6),
-            Constraint::Percentage(100),
-        ]
-        .as_ref(),
-    )
+    .widths(table_constraints.as_ref())
     .column_spacing(1);
 
     f.render_widget(table, vertical_chunks[0]);

@@ -42,9 +42,9 @@ pub fn align_columns(
     for i in 0..column_amount {
         let column_max = v2.iter().map(|v| v[i].len()).max().unwrap() as u16;
 
-        for j in 0..v2.len() {
-            v2[i][j] = align_text(&v2[i][j], column_max, alignment.clone());
-        }
+        (0..v2.len()).for_each(|j| {
+            v2[j][i] = align_text(&v2[j][i], column_max, alignment.clone());
+        });
     }
 
     v2
