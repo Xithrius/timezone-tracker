@@ -17,6 +17,7 @@ pub fn config_path(file: &str) -> String {
         _ => unimplemented!(),
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
