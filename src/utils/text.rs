@@ -36,18 +36,27 @@ pub fn align_text(text: &str, maximum_length: u16, alignment: Alignment) -> Stri
 /// Sides can either be to the left, right, or center.
 pub fn align_columns(
     mut v2: Vec<Vec<String>>,
+    headers: Vec<String>,
     column_amount: usize,
     alignment: Alignment,
-) -> Vec<Vec<String>> {
+) -> (Vec<Vec<String>>, Vec<u16>) {
+    let mut maximums = vec![];
+
+    v2.push(headers);
+
     for i in 0..column_amount {
         let column_max = v2.iter().map(|v| v[i].len()).max().unwrap() as u16;
+
+        maximums.push(column_max);
 
         (0..v2.len()).for_each(|j| {
             v2[j][i] = align_text(&v2[j][i], column_max, alignment.clone());
         });
     }
 
-    v2
+    v2.pop();
+
+    (v2, maximums)
 }
 
 pub fn get_cursor_position(line_buffer: &LineBuffer) -> usize {

@@ -11,6 +11,3 @@ alignment = "right"
 
 # The amount of padding that the main window should have.
 padding = 0
-
-# The maximum length a username can be.
-maximum_username_length = 30

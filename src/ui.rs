@@ -47,24 +47,29 @@ pub fn draw_ui<T: Backend>(f: &mut Frame<T>, app: &mut App, config: &CompleteCon
         })
         .collect::<Vec<Vec<String>>>();
 
-    let titles = vec!["User", "Offset", "Time"];
+    let headers = vec!["User", "Offset", "Time"];
 
-    let table_constraints = vec![
-        Constraint::Length(config.frontend.maximum_username_length),
-        Constraint::Length(6),
-        Constraint::Percentage(100),
-    ];
+    let (aligned_table, maximums) = align_columns(
+        time_rows,
+        headers
+            .iter()
+            .map(|s| s.to_string())
+            .collect::<Vec<String>>(),
+        headers.len(),
+        config.frontend.alignment.clone(),
+    );
+
+    let table_constraints = maximums
+        .iter()
+        .map(|l| Constraint::Length(*l))
+        .collect::<Vec<Constraint>>();
 
     let table = Table::new(
-        if time_rows.len() > 1 {
-            align_columns(time_rows, titles.len(), config.frontend.alignment.clone())
-        } else {
-            time_rows
-        }
-        .iter()
-        .map(|cells| Row::new(cells.iter().map(|s| s.to_string()))),
+        aligned_table
+            .iter()
+            .map(|cells| Row::new(cells.iter().map(|s| s.to_string()))),
     )
-    .header(Row::new(titles).style(styles::COLUMN_TITLE))
+    .header(Row::new(headers).style(styles::COLUMN_TITLE))
     .block(
         Block::default()
             .style(styles::BORDER_NAME)

@@ -40,8 +40,6 @@ pub struct FrontendConfig {
     pub alignment: Alignment,
     /// The amount of padding that the main window should have.
     pub padding: u16,
-    /// The maximum length for a username.
-    pub maximum_username_length: u16,
 }
 
 impl Default for TerminalConfig {
@@ -62,7 +60,6 @@ impl Default for FrontendConfig {
             time_format: "%c".to_string(),
             alignment: Alignment::Right,
             padding: 0,
-            maximum_username_length: 30,
         }
     }
 }
