@@ -12,7 +12,7 @@ keywords = ["tui", "timezones"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-crossterm = "0.24.0"
+crossterm = "0.25.0"
 tui = { version = "0.18.0", default-features = false, features = [ "crossterm" ] }
 serde = { version = "1.0.143", features = [ "derive" ] }
 tokio = { version = "1.20.1", features = [ "full" ] }
