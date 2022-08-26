@@ -81,6 +81,17 @@ impl Events {
                                 KeyModifiers::ALT => Key::Alt(c),
                                 _ => Key::Null,
                             },
+                            // Other keys will be added later, if needed.
+                            _ => Key::Null,
+                            // KeyCode::CapsLock => todo!(),
+                            // KeyCode::ScrollLock => todo!(),
+                            // KeyCode::NumLock => todo!(),
+                            // KeyCode::PrintScreen => todo!(),
+                            // KeyCode::Pause => todo!(),
+                            // KeyCode::Menu => todo!(),
+                            // KeyCode::KeypadBegin => todo!(),
+                            // KeyCode::Media(_) => todo!(),
+                            // KeyCode::Modifier(_) => todo!(),
                         };
                         if let Err(err) = tx.send(Event::Input(key)).await {
                             eprintln!("{}", err);
