@@ -24,14 +24,14 @@ impl Storage {
 
             file.write_all(storage_str.as_bytes()).unwrap();
 
-            return Storage { items, file_path };
+            return Self { items, file_path };
         }
 
         let file_content = read_to_string(&file_path).unwrap();
 
         let items: StorageMap = serde_json::from_str(&file_content).unwrap();
 
-        Storage { items, file_path }
+        Self { items, file_path }
     }
 
     /// The storage map kept in memory is dumped into the file specified at initialization

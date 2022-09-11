@@ -9,9 +9,10 @@ use unicode_width::UnicodeWidthStr;
 use crate::handlers::config::Alignment;
 
 pub fn align_text(text: &str, maximum_length: u16, alignment: Alignment) -> String {
-    if maximum_length < 1 {
-        panic!("Parameter of 'maximum_length' cannot be below 1.");
-    }
+    assert!(
+        maximum_length >= 1,
+        "Parameter of 'maximum_length' cannot be below 1."
+    );
 
     let dw = text.len();
 
@@ -28,7 +29,7 @@ pub fn align_text(text: &str, maximum_length: u16, alignment: Alignment) -> Stri
                 " ".repeat(((maximum_length / 2) - (((dw / 2) as f32).floor() as u16)) as usize);
             format!("{}{}{}", side_spaces, text, side_spaces)
         }
-        _ => text.to_string(),
+        Alignment::Left => text.to_string(),
     }
 }
 
@@ -73,7 +74,7 @@ pub fn title_spans<'a>(contents: Vec<Vec<&str>>, style: Style) -> Spans<'a> {
 
     for (i, item) in contents.iter().enumerate() {
         complete.extend(vec![
-            Span::raw(format!("{}[ ", if i != 0 { " " } else { "" })),
+            Span::raw(format!("{}[ ", if i == 0 { "" } else { " " })),
             Span::styled(item[0].to_string(), style),
             Span::raw(format!(": {} ]", item[1])),
         ]);

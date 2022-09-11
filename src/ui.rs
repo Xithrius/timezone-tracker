@@ -1,3 +1,5 @@
+use std::string::ToString;
+
 use chrono::{Local, NaiveDateTime, Utc};
 use tui::{
     backend::Backend,
@@ -28,7 +30,7 @@ pub fn draw_ui<T: Backend>(f: &mut Frame<T>, app: &mut App, config: &CompleteCon
 
     let vertical_chunks = Layout::default()
         .direction(Direction::Vertical)
-        .margin(config.frontend.padding)
+        .margin(config.frontend.margin)
         .constraints(vertical_chunk_constraints.as_ref())
         .split(f.size());
 
@@ -53,7 +55,7 @@ pub fn draw_ui<T: Backend>(f: &mut Frame<T>, app: &mut App, config: &CompleteCon
         time_rows,
         headers
             .iter()
-            .map(|s| s.to_string())
+            .map(ToString::to_string)
             .collect::<Vec<String>>(),
         headers.len(),
         config.frontend.alignment.clone(),
@@ -67,7 +69,7 @@ pub fn draw_ui<T: Backend>(f: &mut Frame<T>, app: &mut App, config: &CompleteCon
     let table = Table::new(
         aligned_table
             .iter()
-            .map(|cells| Row::new(cells.iter().map(|s| s.to_string()))),
+            .map(|cells| Row::new(cells.iter().map(ToString::to_string))),
     )
     .header(Row::new(headers).style(styles::COLUMN_TITLE))
     .block(

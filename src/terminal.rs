@@ -38,6 +38,19 @@ fn init_terminal() -> Terminal<CrosstermBackend<Stdout>> {
     Terminal::new(backend).unwrap()
 }
 
+fn quit_terminal(mut terminal: Terminal<CrosstermBackend<Stdout>>) {
+    disable_raw_mode().unwrap();
+
+    execute!(
+        terminal.backend_mut(),
+        LeaveAlternateScreen,
+        DisableMouseCapture
+    )
+    .unwrap();
+
+    terminal.show_cursor().unwrap();
+}
+
 pub async fn ui_driver(config: CompleteConfig, mut app: App) {
     let original_hook = std::panic::take_hook();
 
@@ -56,17 +69,6 @@ pub async fn ui_driver(config: CompleteConfig, mut app: App) {
 
     terminal.clear().unwrap();
 
-    let quitting = |mut terminal: Terminal<CrosstermBackend<Stdout>>| {
-        disable_raw_mode().unwrap();
-        execute!(
-            terminal.backend_mut(),
-            LeaveAlternateScreen,
-            DisableMouseCapture
-        )
-        .unwrap();
-        terminal.show_cursor().unwrap();
-    };
-
     'outer: loop {
         terminal
             .draw(|frame| draw_ui(frame, &mut app, &config))
@@ -76,7 +78,8 @@ pub async fn ui_driver(config: CompleteConfig, mut app: App) {
             match app.state {
                 State::Normal => match key {
                     Key::Char('q') => {
-                        quitting(terminal);
+                        quit_terminal(terminal);
+
                         break 'outer;
                     }
                     Key::Char('i') => {

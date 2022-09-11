@@ -23,7 +23,6 @@ pub enum Key {
     Char(char),
     Ctrl(char),
     Alt(char),
-    F(u8),
     Null,
 }
 
@@ -43,7 +42,7 @@ pub struct Config {
 }
 
 impl Events {
-    pub async fn with_config(config: Config) -> Events {
+    pub async fn with_config(config: Config) -> Self {
         let (tx, rx) = mpsc::channel(100);
 
         tokio::spawn(async move {
@@ -73,14 +72,13 @@ impl Events {
                             KeyCode::Tab => Key::Tab,
                             KeyCode::BackTab => Key::BackTab,
                             KeyCode::Enter => Key::Enter,
-                            KeyCode::Null => Key::Null,
-                            KeyCode::F(k) => Key::F(k),
                             KeyCode::Char(c) => match key.modifiers {
                                 KeyModifiers::NONE | KeyModifiers::SHIFT => Key::Char(c),
                                 KeyModifiers::CONTROL => Key::Ctrl(c),
                                 KeyModifiers::ALT => Key::Alt(c),
                                 _ => Key::Null,
                             },
+                            _ => Key::Null,
                         };
                         if let Err(err) = tx.send(Event::Input(key)).await {
                             eprintln!("{}", err);
@@ -98,7 +96,8 @@ impl Events {
                 }
             }
         });
-        Events { rx }
+
+        Self { rx }
     }
 
     pub async fn next(&mut self) -> Option<Event<Key>> {

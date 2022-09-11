@@ -9,5 +9,5 @@ time_format = "%c"
 # Which side the information should be aligned to.
 alignment = "right"
 
-# The amount of padding that the main window should have.
-padding = 0
+# The margin between the main window and the terminal border.
+margin = 0

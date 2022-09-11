@@ -32,7 +32,7 @@ mod tests {
                 std::env::var("APPDATA").unwrap(),
                 BINARY_NAME
             )
-        )
+        );
     }
 
     #[test]
@@ -45,7 +45,7 @@ mod tests {
                 std::env::var("HOME").unwrap(),
                 BINARY_NAME,
             )
-        )
+        );
     }
 
     #[test]
