@@ -18,7 +18,7 @@ serde = { version = "1.0.144", features = [ "derive" ] }
 tokio = { version = "1.21.0", features = [ "full" ] }
 regex = "1.6.0"
 unicode-width = "0.1.9"
-unicode-segmentation = "1.9.0"
+unicode-segmentation = "1.10.0"
 chrono = "0.4.22"
 toml = "0.5.9"
 rustyline = "10.0.0"
