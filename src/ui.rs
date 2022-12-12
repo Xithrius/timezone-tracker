@@ -42,7 +42,8 @@ pub fn draw_ui<T: Backend>(f: &mut Frame<T>, app: &mut App, config: &CompleteCon
             vec![
                 k.to_string(),
                 v.to_string(),
-                NaiveDateTime::from_timestamp(Utc::now().timestamp() + v * 3600, 0)
+                NaiveDateTime::from_timestamp_opt(Utc::now().timestamp() + v * 3600, 0)
+                    .unwrap()
                     .format(config.frontend.time_format.as_str())
                     .to_string(),
             ]
