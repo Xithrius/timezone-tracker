@@ -81,7 +81,7 @@ impl Events {
                             _ => Key::Null,
                         };
                         if let Err(err) = tx.send(Event::Input(key)).await {
-                            eprintln!("{}", err);
+                            eprintln!("{err}");
                             return;
                         }
                     }
@@ -89,7 +89,7 @@ impl Events {
 
                 if last_tick.elapsed() >= config.tick_rate {
                     if let Err(err) = tx.send(Event::Tick).await {
-                        eprintln!("{}", err);
+                        eprintln!("{err}");
                         return;
                     }
                     last_tick = Instant::now();

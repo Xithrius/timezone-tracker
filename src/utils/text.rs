@@ -21,13 +21,13 @@ pub fn align_text(text: &str, maximum_length: u16, alignment: Alignment) -> Stri
             if dw > maximum_length as usize {
                 text.to_string()
             } else {
-                format!("{}{}", " ".repeat(maximum_length as usize - dw), text)
+                format!("{}{text}", " ".repeat(maximum_length as usize - dw))
             }
         }
         Alignment::Center => {
             let side_spaces =
                 " ".repeat(((maximum_length / 2) - (((dw / 2) as f32).floor() as u16)) as usize);
-            format!("{}{}{}", side_spaces, text, side_spaces)
+            format!("{side_spaces}{text}{side_spaces}")
         }
         Alignment::Left => text.to_string(),
     }
