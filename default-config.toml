@@ -5,9 +5,7 @@ tick_delay = 30
 [frontend]
 # The format of the date and time outputs. Formats can be found at https://strftime.org/.
 time_format = "%c"
-
 # Which side the information should be aligned to.
 alignment = "right"
-
 # The margin between the main window and the terminal border.
 margin = 0

@@ -24,7 +24,7 @@ use crate::{
 pub fn draw_ui<T: Backend>(f: &mut Frame<T>, app: &mut App, config: &CompleteConfig) {
     let mut vertical_chunk_constraints = vec![Constraint::Min(1)];
 
-    if let State::Input = app.state {
+    if matches!(app.state, State::Input) {
         vertical_chunk_constraints.push(Constraint::Length(3));
     }
 
@@ -92,7 +92,7 @@ pub fn draw_ui<T: Backend>(f: &mut Frame<T>, app: &mut App, config: &CompleteCon
 
     f.render_widget(table, vertical_chunks[0]);
 
-    if let State::Input = app.state {
+    if matches!(app.state, State::Input) {
         let text = &app.input_buffer;
 
         if !text.is_empty() {

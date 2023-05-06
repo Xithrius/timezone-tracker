@@ -29,12 +29,9 @@ pub fn parse_user_timezone(text: &str) -> Result<(String, i64)> {
         .ok_or_else(|| anyhow!("Unable to retrieve offset"))?
         .as_str();
 
-    let offset = offset_string.parse::<i64>().with_context(|| {
-        format!(
-            "Unable to convert {} to a valid integer offset.",
-            offset_string
-        )
-    });
+    let offset = offset_string
+        .parse::<i64>()
+        .with_context(|| format!("Unable to convert {offset_string} to a valid integer offset."));
 
     Ok((user.to_string(), offset.unwrap()))
 }
