@@ -1,7 +1,7 @@
 use rustyline::line_buffer::LineBuffer;
 use tui::{
     style::Style,
-    text::{Span, Spans},
+    text::{Line, Span},
 };
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
@@ -69,7 +69,7 @@ pub fn get_cursor_position(line_buffer: &LineBuffer) -> usize {
         .sum()
 }
 
-pub fn title_spans<'a>(contents: Vec<Vec<&str>>, style: Style) -> Spans<'a> {
+pub fn title_spans<'a>(contents: Vec<Vec<&str>>, style: Style) -> Line<'a> {
     let mut complete = Vec::new();
 
     for (i, item) in contents.iter().enumerate() {
@@ -80,7 +80,7 @@ pub fn title_spans<'a>(contents: Vec<Vec<&str>>, style: Style) -> Spans<'a> {
         ]);
     }
 
-    Spans::from(complete)
+    Line::from(complete)
 }
 
 #[cfg(test)]
