@@ -18,7 +18,7 @@ tui = { package = "ratatui", version = "0.23.0", default-features = false, featu
 serde = { version = "1.0.188", features = [ "derive" ] }
 tokio = { version = "1.32.0", features = [ "full" ] }
 regex = "1.9.5"
-unicode-width = "0.1.10"
+unicode-width = "0.1.11"
 unicode-segmentation = "1.10.1"
 chrono = "0.4.30"
 toml = "0.7.8"
